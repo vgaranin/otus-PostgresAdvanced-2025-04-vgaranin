@@ -27,6 +27,7 @@ Hello from Docker!
 This message shows that your installation appears to be working correctly.
 ```
 ## Для удобства создаем отдельную директорию /app и создаем docker-compose.yml
+```
 mkdir /app
 cd /app
 nano docker-compose.yml
@@ -54,6 +55,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+```
 
 ### Запускаем
 ```
