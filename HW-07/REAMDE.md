@@ -68,7 +68,7 @@ kubectl create secret generic my-postgres-secret \
 ```
 Проверяем
 ```
-$ kubectl get secrets
+$ kubectl get secrets -n postgres
 NAME                 TYPE     DATA   AGE
 my-postgres-secret   Opaque   2      8s
 ```
@@ -77,8 +77,17 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
 Устанавливаем Helm-чарт с values.yaml
+```
 helm install my-postgres bitnami/postgresql -f values.yml -n postgres
+```
+ Проверяем
+ 
+<img width="689" height="153" alt="image" src="https://github.com/user-attachments/assets/d0ff1b3e-d8d2-4788-9580-c731285a66f0" />
 
 
 ### Настраиваем порт форвардинг и подключаемся
+```
 kubectl port-forward --namespace postgres svc/my-postgres-postgresql-primary 5432:5432
+```
+<img width="1269" height="199" alt="image" src="https://github.com/user-attachments/assets/9e970601-dadd-4c96-a32a-019d0f942880" />
+
