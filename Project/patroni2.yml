@@ -1,0 +1,32 @@
+scope: postgres-cluster
+namespace: /db/
+
+name: patroni2
+
+restapi:
+  listen: 0.0.0.0:8008
+  connect_address: 10.10.0.12:8008
+
+etcd:
+  hosts: 10.10.0.21:2379,10.10.0.22:2379,10.10.0.23:2379
+
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: 10.10.0.12:5432
+  data_dir: /mnt/data
+  pgpass: /tmp/pgpass
+  authentication:
+    replication:
+      username: replicator
+      password: replicator123
+    superuser:
+      username: postgres
+      password: postgres123
+  parameters:
+    unix_socket_directories: '.'
+
+tags:
+  nofailover: false
+  noloadbalance: false
+  clonefrom: false
+  nosync: false
