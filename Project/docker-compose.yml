@@ -150,46 +150,37 @@ services:
       etcd3:
         condition: service_healthy
 
-  # HAProxy nodes
-  haproxy1:
-    image: haproxy:2.8
-    container_name: haproxy1
+  # HAProxy + Keepalived
+  haproxy-keepalived1:
+    build:
+      context: .
+      dockerfile: Dockerfile.haproxy-keepalived
+    container_name: haproxy-keepalived1
     networks:
       otus-net:
         ipv4_address: 10.10.0.31
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./keepalived/keepalived1.conf:/etc/keepalived/keepalived.conf:ro
+    ports:
+      - "5000:5432"
 
-  haproxy2:
-    image: haproxy:2.8
-    container_name: haproxy2
+  haproxy-keepalived2:
+    build:
+      context: .
+      dockerfile: Dockerfile.haproxy-keepalived
+    container_name: haproxy-keepalived2
     networks:
       otus-net:
         ipv4_address: 10.10.0.32
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
-
-  # Keepalived nodes
-  keepalived1:
-    image: osixia/keepalived:2.0.20
-    container_name: keepalived1
-    networks:
-      otus-net:
-        ipv4_address: 10.10.0.35
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    volumes:
-      - ./keepalived/keepalived1.conf:/usr/local/etc/keepalived/keepalived.conf:ro
-
-  keepalived2:
-    image: osixia/keepalived:2.0.20
-    container_name: keepalived2
-    networks:
-      otus-net:
-        ipv4_address: 10.10.0.36
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    volumes:
-      - ./keepalived/keepalived2.conf:/usr/local/etc/keepalived/keepalived.conf:ro
+      - ./keepalived/keepalived2.conf:/etc/keepalived/keepalived.conf:ro
+    ports:
+      - "5001:5432"

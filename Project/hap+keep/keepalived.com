@@ -1,0 +1,33 @@
+! Configuration File for keepalived
+
+global_defs {
+    router_id haproxy_keepalived1
+}
+
+vrrp_script chk_haproxy {
+    script "killall -0 haproxy"
+    interval 2
+    weight 2
+}
+
+vrrp_instance VI_1 {
+    state BACKUP
+    interface eth0
+    virtual_router_id 51
+    priority 101
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass d0cker
+    }
+    unicast_peer {
+        10.10.0.32
+    }
+    virtual_ipaddress {
+        10.10.0.100/24 dev eth0
+    }
+    track_script {
+        chk_haproxy
+    }
+    nopreempt
+}
