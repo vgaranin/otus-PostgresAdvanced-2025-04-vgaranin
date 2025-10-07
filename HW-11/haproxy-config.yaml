@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-config
+  namespace: postgres-operator
+data:
+  haproxy.cfg: |
+    global
+        daemon
+        maxconn 1000
+
+    defaults
+        mode tcp
+        timeout connect 10s
+        timeout client 60s
+        timeout server 60s
+
+    listen stats
+        mode http
+        bind *:7000
+        stats enable
+        stats uri /
+
+    listen postgres
+        bind *:5432
+        mode tcp
+        balance first
+        option tcp-check
+        default-server inter 3s fall 3 rise 2
+        server postgres-0 10.244.0.28:5432 check
+        server postgres-1 10.244.0.22:5432 check
+        server postgres-2 10.244.0.23:5432 check
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: haproxy
+  namespace: postgres-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: haproxy
+  template:
+    metadata:
+      labels:
+        app: haproxy
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - name: haproxy
+        image: haproxy:2.8-alpine
+        ports:
+        - containerPort: 5432
+          name: postgres
+        - containerPort: 7000
+          name: stats
+        volumeMounts:
+        - name: haproxy-config
+          mountPath: /usr/local/etc/haproxy/
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+      volumes:
+      - name: haproxy-config
+        configMap:
+          name: haproxy-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: haproxy-service
+  namespace: postgres-operator
+spec:
+  selector:
+    app: haproxy
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  - port: 7000
+    targetPort: 7000
+    name: stats
+  type: LoadBalancer

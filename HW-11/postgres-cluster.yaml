@@ -1,0 +1,35 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: acid-minimal-cluster
+  namespace: postgres-operator
+spec:
+  teamId: "acid"
+  volume:
+    size: 1Gi
+  numberOfInstances: 3
+  users:
+    zalando:
+      - superuser
+      - createdb
+  databases:
+    foo: zalando
+  postgresql:
+    version: "15"
+
+  
+  patroni:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 33554432
+  
+  enableConnectionPooler: true
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 500m
+      memory: 500Mi
