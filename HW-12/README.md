@@ -53,7 +53,7 @@ autovacuum = off
 demo=# select count(*) from bookings;
   count   
 ----------
- 13558220
+ 9706656
 (1 row)
 
 Time: 221591.577 ms (03:41.592)
